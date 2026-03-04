@@ -1,6 +1,8 @@
 const Book = require('../schema/book.schema');
 const Author = require('../schema/author.schema');
 const CustomError = require('../error/custom-error.handler');
+const path = require('path');
+const fs = require('fs');
 
 //  BARCHA KITOBLARNI OLISH (filterlash va sahifalash bilan)
 const getAllBooks = async (req, res, next) => {
@@ -146,4 +148,38 @@ const deleteBook = async (req, res, next) => {
   }
 };
 
-module.exports = { getAllBooks, getBookById, createBook, updateBook, deleteBook };
+const uploadFileBook = async (req, res, next) => {
+  try {
+    const { bookId } = req.params;
+
+    const foundedBook = await Book.findById(bookId);
+    if (!foundedBook) {
+      return res.status(404).json({ message: 'Kitob topilmadi' });
+    }
+
+    if (foundedBook.audioUrl) {
+      const fileUrl = path.join(__dirname, '..', foundedBook.audioUrl);
+      if (fs.existsSync(fileUrl)) {
+        fs.unlinkSync(fileUrl);
+      }
+      }
+      const changer = req.file.path.replace(/\\/g, '/');
+      foundedBook.audioUrl = changer;
+      await foundedBook.save();
+      return res.status(200).json({
+        success: true,
+        message: 'Audio fayl muvaffaqiyatli yangilandi',
+        data: { audioUrl: changer },
+      });
+    }
+   catch (error) {
+    next(error);
+  }
+};
+
+
+module.exports = { getAllBooks, 
+  getBookById, 
+  createBook, 
+  updateBook, 
+  deleteBook, uploadFileBook, };

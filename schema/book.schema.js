@@ -29,6 +29,11 @@ const bookSchema = new mongoose.Schema(
         message: 'Bunday janr mavjud emas',
       },
     },
+    audioUrl: {
+      type: String,
+      required: false,
+      
+    },
     publishedYear: {
       type: Number,
       min: [1000, 'Nashr yili 1000 dan katta bo\'lishi kerak'],

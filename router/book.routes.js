@@ -8,6 +8,7 @@ const {
   createBook,
   updateBook,
   deleteBook,
+  uploadFileBook
 } = require('../controller/book.controller');
 
 // Middlewares
@@ -18,9 +19,14 @@ const { protect, authorize } = require('../middleware/auth.protect.middleware');
 // JOI Validators
 const { createBookValidation, updateBookValidation } = require('../validator/book.validator');
 
+// Upload
+const { upload } = require('../middleware/upload');
+
+// Audio stream
+const { stream } = require('../controller/audio.controller');
+
 
 // GET /api/books?page=1&limit=10&genre=roman&minPrice=5000
-// validateQuery - query parametrlarini JOI orqali tekshiradi
 router.get('/', validateQuery(bookQueryValidation), getAllBooks);
 
 // GET /api/books/:id
@@ -43,6 +49,12 @@ router.put(
   validate(updateBookValidation),
   updateBook
 );
+
+// Audio upload
+router.post('/:bookId/audio', upload.single('audio'), uploadFileBook);
+
+// Audio stream
+router.get('/:bookId/audio', stream);
 
 // DELETE /api/books/:id (faqat admin)
 router.delete('/:id', protect, authorize('admin'), deleteBook);
